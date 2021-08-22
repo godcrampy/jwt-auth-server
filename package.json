@@ -1,0 +1,31 @@
+{
+  "name": "jwt-auth-server",
+  "version": "1.0.0",
+  "description": "Simple JWT Auth server written in typescript.",
+  "main": "index.js",
+  "scripts": {
+    "build": "rm -rf dist && tsc",
+    "start": "yarn build && node build/index.js",
+    "lint": "eslint '**/*.ts*' --fix && prettier --write '**/*.+(js|jsx|ts|tsx|json|scss|css)'",
+    "dev": "tsc -w"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/godcrampy/jwt-auth-server.git"
+  },
+  "author": "Sahil Bondre <sahilbondre@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/godcrampy/jwt-auth-server/issues"
+  },
+  "homepage": "https://github.com/godcrampy/jwt-auth-server#readme",
+  "dependencies": {
+    "typescript": "^4.3.5"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.29.2",
+    "@typescript-eslint/parser": "^4.29.2",
+    "eslint": "^7.32.0",
+    "prettier": "^2.3.2"
+  }
+}
