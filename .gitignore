@@ -119,3 +119,4 @@ dist
 
 # typescript build
 build/
+src/config/db.config.ts
