@@ -6,21 +6,14 @@ import { Request, Response } from "express";
 
 const db = new DB();
 const User = db.user;
-const Role = db.role;
 
 export async function signUp(req: Request, res: Response): Promise<void> {
   try {
-    const role = await Role.findOne({ name: "user" }).exec();
-    if (role === null) {
-      res.status(500).send({ message: "Error Finding Role" });
-      return;
-    }
-
     const user = new User({
       email: req.body.email,
       name: req.body.name,
       password: bcrypt.hashSync(req.body.password, 8),
-      roles: [role._id],
+      roles: [db.USER_ROLE],
     });
 
     user.save();
@@ -34,9 +27,7 @@ export async function signIn(req: Request, res: Response): Promise<void> {
   try {
     const user = await User.findOne({
       email: req.body.email,
-    })
-      .populate("roles", "-__v")
-      .exec();
+    }).exec();
 
     if (!user) {
       res.status(404).send({ message: "User Not found." });

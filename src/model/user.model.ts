@@ -4,7 +4,7 @@ export interface IUser {
   name: string;
   email: string;
   password: string;
-  roles: Schema.Types.ObjectId[];
+  roles: string[];
 }
 
 const User = mongoose.model<IUser>(
@@ -15,8 +15,7 @@ const User = mongoose.model<IUser>(
     password: String,
     roles: [
       {
-        type: Schema.Types.ObjectId,
-        ref: "role",
+        type: String,
       },
     ],
   })

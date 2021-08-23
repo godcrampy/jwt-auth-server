@@ -2,20 +2,25 @@ import jwt from "jsonwebtoken";
 import DB from "../model";
 import { secret } from "../config/auth.config";
 import { Response, Request, NextFunction } from "express";
+import { IUser } from "../model/user.model";
+import { Document } from "mongoose";
 
 const db = new DB();
 const User = db.user;
-const Role = db.role;
 
-export interface IUserIdRequest extends Request {
-  userId?: string;
+export interface IUserRequest extends Request {
+  user?: IUser & Document;
 }
 
-export function verifyToken(
-  req: IUserIdRequest,
+export interface IUserId {
+  id?: string;
+}
+
+export async function verifyToken(
+  req: IUserRequest,
   res: Response,
   next: NextFunction
-): void {
+): Promise<void> {
   const token = req.headers["x-access-token"];
 
   if (!token) {
@@ -23,38 +28,38 @@ export function verifyToken(
     return;
   }
 
-  jwt.verify(<string>token, secret, (err, decoded) => {
-    if (err || decoded === undefined) {
-      res.status(401).send({ message: "Unauthorized!" });
+  try {
+    const decoded = <IUserId>jwt.verify(<string>token, secret);
+    const userId = decoded.id;
+    const user = await User.findById(userId).exec();
+
+    if (!user) {
+      res.status(401).send({ message: "Invalid Token" });
       return;
     }
 
-    req.userId = decoded.id;
+    req.user = user;
     next();
-  });
+  } catch (err) {
+    res.status(401).send({ message: "Unauthorized!" });
+  }
 }
 
 export async function isAdmin(
-  req: IUserIdRequest,
+  req: IUserRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> {
   try {
-    const user = await User.findById(req.userId).exec();
-    if (user === null) {
+    const user = req.user;
+    if (!user) {
       res.status(500).send({ message: "User not found!" });
       return;
     }
 
-    const roles = await Role.find({
-      _id: { $in: user.roles },
-    }).exec();
-
-    for (const role of roles) {
-      if (role.name === "admin") {
-        next();
-        return;
-      }
+    if (user.roles.includes(db.ADMIN_ROLE)) {
+      next();
+      return;
     }
 
     res.status(403).send({ message: "Admin role required" });

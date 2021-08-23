@@ -1,12 +1,11 @@
 import mongoose from "mongoose";
-import Role, { ROLES } from "./role.model";
 import User from "./user.model";
 
 class DB {
   mongoose = mongoose;
   user = User;
-  role = Role;
-  roles = ROLES;
+  ADMIN_ROLE = "ADMIN";
+  USER_ROLE = "USER";
 }
 
 export default DB;
