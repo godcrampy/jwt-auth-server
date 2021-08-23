@@ -9,23 +9,24 @@ export function publicAccess(_req: Request, res: Response): void {
   res.send("Public Content.");
 }
 
-export function loginAccess(req: IUserIdRequest, res: Response): void {
+export async function loginAccess(
+  req: IUserIdRequest,
+  res: Response
+): Promise<void> {
   const userId = req.userId;
-  User.findById(userId)
-    .populate("roles")
-    .exec((err, user) => {
-      if (err) {
-        res.status(500).send({ message: err });
-        return;
-      }
 
-      if (!user) {
-        res.status(404).send({ message: "Invalid token!" });
-        return;
-      }
+  try {
+    const user = await User.findById(userId).populate("roles").exec();
 
-      res.send(user);
-    });
+    if (!user) {
+      res.status(404).send({ message: "Invalid token!" });
+      return;
+    }
+
+    res.send(user);
+  } catch (err) {
+    res.status(500).send({ message: err });
+  }
 }
 
 export function adminAccess(_req: Request, res: Response): void {

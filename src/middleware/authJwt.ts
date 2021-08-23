@@ -34,36 +34,31 @@ export function verifyToken(
   });
 }
 
-export function isAdmin(
+export async function isAdmin(
   req: IUserIdRequest,
   res: Response,
   next: NextFunction
-): void {
-  User.findById(req.userId).exec((err, user) => {
-    if (err || user === null) {
-      res.status(500).send({ message: err });
+): Promise<void> {
+  try {
+    const user = await User.findById(req.userId).exec();
+    if (user === null) {
+      res.status(500).send({ message: "User not found!" });
       return;
     }
 
-    Role.find(
-      {
-        _id: { $in: user.roles },
-      },
-      (err, roles) => {
-        if (err) {
-          res.status(500).send({ message: err });
-          return;
-        }
+    const roles = await Role.find({
+      _id: { $in: user.roles },
+    }).exec();
 
-        for (const role of roles) {
-          if (role.name === "admin") {
-            next();
-            return;
-          }
-        }
-
-        res.status(403).send({ message: "Admin role required" });
+    for (const role of roles) {
+      if (role.name === "admin") {
+        next();
+        return;
       }
-    );
-  });
+    }
+
+    res.status(403).send({ message: "Admin role required" });
+  } catch (err) {
+    res.status(500).send({ message: err });
+  }
 }
