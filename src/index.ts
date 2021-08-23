@@ -5,6 +5,8 @@ import DB from "./model";
 import { URL } from "./config/db.config";
 import Role from "./model/role.model";
 import { CallbackError } from "mongoose";
+import authRouter from "./route/auth.route";
+import testRouter from "./route/test.route";
 
 const app: Express = express();
 const PORT: number = Number(process.env.PORT) || 8080;
@@ -25,6 +27,9 @@ db.mongoose
     console.error("Connection error", err);
     process.exit();
   });
+
+app.use("/auth", authRouter);
+app.use("/test", testRouter);
 
 app.get("/", (req, res) => {
   res.json({ message: "Hello World!" });
